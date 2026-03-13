@@ -17,6 +17,9 @@ isStart = False
 
 canvas = np.zeros((480, 640, 3), np.uint8)
 
+if not os.path.exists("Strokes"):
+    os.makedirs("Strokes")
+count  = len(os.listdir("Strokes"))
 while True:
     success , frame = cap.read()
     frame = cv2.flip(frame,1)
@@ -41,11 +44,14 @@ while True:
             canvas = np.zeros((480, 640, 3), np.uint8)
 
         if fingers[0] == 1 and sum(fingers[1:]) == 0:
-            count  = len(os.listdir("strokes"))
+            
             if time.time() - savedTime > 2:
-                cv2.imwrite(f"Strokes/A_00{count}.png",canvas)
+                if np.sum(canvas) != 0:
+                    cv2.imwrite(f"Strokes/A_{count}.png", canvas)
+                    count += 1
                 print("tumb up to saving image")
                 savedTime = time.time()
+           
         if fingers == [0,1,1,0,0]:
             distance = ((lmList[8][1] - lmList[12][1]) ** 2 + (lmList[8][2] - lmList[12][2]) ** 2) ** 0.5
             mX = (lmList[8][1] + lmList[12][1]) // 2
