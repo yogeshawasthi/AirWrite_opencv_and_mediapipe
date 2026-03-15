@@ -4,6 +4,7 @@ import time
 import handTracking_module as htm
 import numpy as np
 import os
+import re
 
 prevX, prevY = 0, 0
 pTime = 0
@@ -19,7 +20,25 @@ canvas = np.zeros((480, 640, 3), np.uint8)
 
 if not os.path.exists("Strokes"):
     os.makedirs("Strokes")
-count  = len(os.listdir("Strokes"))
+
+
+def get_next_serial(save_dir, prefix="C"):
+    pattern = re.compile(rf"^{re.escape(prefix)}_(\d+)\.png$", re.IGNORECASE)
+    used = set()
+
+    for file_name in os.listdir(save_dir):
+        match = pattern.match(file_name)
+        if match:
+            used.add(int(match.group(1)))
+
+    next_serial = 0
+    while next_serial in used:
+        next_serial += 1
+
+    return next_serial
+
+
+next_count = get_next_serial("Strokes", "C")
 while True:
     success , frame = cap.read()
     frame = cv2.flip(frame,1)
@@ -47,9 +66,10 @@ while True:
             
             if time.time() - savedTime > 2:
                 if np.sum(canvas) != 0:
-                    cv2.imwrite(f"Strokes/A_{count}.png", canvas)
-                    count += 1
-                print("tumb up to saving image")
+                    cv2.imwrite(f"Strokes/D_{next_count}.png", canvas)
+                    print(f"Saved: Strokes/C_{next_count}.png")
+                    next_count += 1
+                print("thumb up to saving image")
                 savedTime = time.time()
            
         if fingers == [0,1,1,0,0]:
@@ -76,9 +96,9 @@ while True:
     if not success:
         print("cannot read the vedio")
     # fps rate of images
-    cTime = time.time() 
-    fps = 1/(cTime - pTime)
-    pTime = cTime
+    dTime = time.time() 
+    fps = 1/(dTime - pTime)
+    pTime = dTime
 
     cv2.putText(frame,f'FPS:{int(fps)}',(20,40),cv2.FONT_HERSHEY_PLAIN,2,(0,255,0),1)
     # Overlay canvas
