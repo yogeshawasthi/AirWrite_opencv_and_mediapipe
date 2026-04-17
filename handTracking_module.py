@@ -5,18 +5,19 @@ import time
 
 
 class handDetector():
-    def __init__(self,mode = False,maxHand = 2, detectionCon = 0.5, trackCon = 0.5):
+    def __init__(self,mode = False,maxHand = 2, detectionCon = 0.5, trackCon = 0.5, modelComplexity = 0):
         self.mode = mode
         self.maxHand = maxHand
         self.detectionCon = detectionCon
         self.trackCon = trackCon
+        self.modelComplexity = modelComplexity
 
         # mediapipe module 
         self.mpHands = mp.solutions.hands
         self.hands = self.mpHands.Hands(
             static_image_mode=self.mode,
             max_num_hands=self.maxHand,
-            model_complexity=1,
+            model_complexity=self.modelComplexity,
             min_detection_confidence=self.detectionCon,
             min_tracking_confidence=self.trackCon
         )
